@@ -223,27 +223,29 @@ class Admin(DeferredReflection, TableDeclarativeBase):
         return f"<Admin {self.user_id}>"
 
 
+from sqlalchemy.orm import Mapped, mapped_column
+
 class Order(DeferredReflection, TableDeclarativeBase):
-    """An order which has been placed by an user.
+    """An order which has been placed by a user.
     It may include multiple products, available in the OrderItem table."""
 
     # The unique order id
-    order_id = Column(Integer, primary_key=True)
+    order_id = mapped_column(Integer, primary_key=True)
     # The user who placed the order
-    user_id = Column(BigInteger, ForeignKey("users.user_id"))
+    user_id = mapped_column(BigInteger, ForeignKey("users.user_id"))
     user = relationship("User")
     # Date of creation
-    creation_date = Column(DateTime, nullable=False)
+    creation_date = mapped_column(DateTime, nullable=False)
     # Date of delivery
-    delivery_date = Column(DateTime)
+    delivery_date = mapped_column(DateTime)
     # Date of refund: if null, product hasn't been refunded
-    refund_date = Column(DateTime)
+    refund_date = mapped_column(DateTime)
     # Refund reason: if null, product hasn't been refunded
-    refund_reason = Column(Text)
+    refund_reason = mapped_column(Text)
     # List of items in the order
-    items: typing.List["OrderItem"] = relationship("OrderItem")
+    items: Mapped[typing.List["OrderItem"]] = relationship("OrderItem")
     # Extra details specified by the purchasing user
-    notes = Column(Text)
+    notes = mapped_column(Text)
     # Linked transaction
     transaction = relationship("Transaction", uselist=False)
 
@@ -291,12 +293,12 @@ class OrderItem(DeferredReflection, TableDeclarativeBase):
     """A product that has been purchased as part of an order."""
 
     # The unique item id
-    item_id = Column(Integer, primary_key=True)
+    item_id = mapped_column(Integer, primary_key=True)
     # The product that is being ordered
-    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+    product_id = mapped_column(Integer, ForeignKey("products.id"), nullable=False)
     product = relationship("Product")
     # The order in which this item is being purchased
-    order_id = Column(Integer, ForeignKey("orders.order_id"), nullable=False)
+    order_id = mapped_column(Integer, ForeignKey("orders.order_id"), nullable=False)
 
     # Extra table parameters
     __tablename__ = "orderitems"
